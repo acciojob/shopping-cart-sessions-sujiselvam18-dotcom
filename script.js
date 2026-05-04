@@ -12,14 +12,19 @@ const productList = document.getElementById("product-list");
 const cartList = document.getElementById("cart-list");
 const clearCartBtn = document.getElementById("clear-cart-btn");
 
+
+
 function getCart() {
-  return JSON.parse(sessionStorage.getItem("cart")) || [];
+  const data = sessionStorage.getItem("cart");
+  return data ? JSON.parse(data) : [];
 }
 
 
 function saveCart(cart) {
   sessionStorage.setItem("cart", JSON.stringify(cart));
 }
+
+
 
 function renderProducts() {
   productList.innerHTML = "";
@@ -29,9 +34,7 @@ function renderProducts() {
 
     li.innerHTML = `
       ${product.name} - $${product.price}
-      <button class="add-to-cart-btn" data-id="${product.id}">
-        Add to Cart
-      </button>
+      <button data-id="${product.id}">Add to Cart</button>
     `;
 
     productList.appendChild(li);
@@ -39,8 +42,10 @@ function renderProducts() {
 }
 
 
+
 function renderCart() {
   const cart = getCart();
+
   cartList.innerHTML = "";
 
   cart.forEach((item) => {
@@ -50,39 +55,39 @@ function renderCart() {
   });
 }
 
+
+
 function addToCart(productId) {
-  const cart = getCart();
-  const product = products.find(p => p.id === productId);
+  const cart = getCart(); // ALWAYS get existing cart first
 
-  cart.push(product);
-  saveCart(cart);
+  const product = products.find((p) => p.id === productId);
+
+  cart.push(product); // allow duplicates
+
+  saveCart(cart); // save full updated cart
+
   renderCart();
 }
 
-
-function removeFromCart(productId) {
-  let cart = getCart();
-  cart = cart.filter(item => item.id !== productId);
-  saveCart(cart);
-  renderCart();
-}
 
 
 function clearCart() {
-  sessionStorage.removeItem("cart");
+  sessionStorage.removeItem("cart"); // only place where cart resets
   renderCart();
 }
 
 
 productList.addEventListener("click", function (e) {
-  if (e.target.classList.contains("add-to-cart-btn")) {
+  if (e.target.tagName === "BUTTON") {
     const productId = parseInt(e.target.getAttribute("data-id"));
     addToCart(productId);
   }
 });
 
 
+
 clearCartBtn.addEventListener("click", clearCart);
+
 
 renderProducts();
 renderCart();
